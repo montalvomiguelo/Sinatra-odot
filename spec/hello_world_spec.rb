@@ -1,9 +1,9 @@
 ENV['RACK_ENV'] = 'test'
 
-require 'hello_world'  # <-- your sinatra app
+require_relative '../app'  # <-- your sinatra app
 require 'rack/test'
 
-describe 'The HelloWorld App' do
+describe Todo do
   include Rack::Test::Methods
 
   def app
