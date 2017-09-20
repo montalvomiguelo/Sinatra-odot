@@ -1,12 +1,7 @@
-require 'sinatra'
+require 'sinatra/base'
 
 class Todo < Sinatra::Base
-  set :environment, ENV['RACK_ENV']
-
-  configure do
+  get '/test' do
+    'The application is running'
   end
-
-  Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each { |model | require model }
-  Dir[File.join(File.dirname(__FILE__), 'lib', '*.rb')].each { |lib| load lib }
-
 end
