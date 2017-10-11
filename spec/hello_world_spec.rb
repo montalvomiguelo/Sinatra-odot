@@ -1,9 +1,3 @@
-ENV['RACK_ENV'] = 'test'
-
-require_relative '../app'  # <-- your sinatra app
-require 'rspec'
-require 'rack/test'
-
 describe Todo do
   include Rack::Test::Methods
 
