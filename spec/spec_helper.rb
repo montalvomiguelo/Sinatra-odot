@@ -3,6 +3,10 @@ ENV['RACK_ENV'] = 'test'
 require_relative '../app'  # <-- your sinatra app
 require 'rspec'
 require 'rack/test'
+require 'rack/test'
+require 'factory_girl'
+require 'sinatra/activerecord'
+require 'factories'
 
 module RSpecMixin
   include Rack::Test::Methods
@@ -29,6 +33,8 @@ end
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
   config.include RSpecMixin
+
+  config.include FactoryGirl::Syntax::Methods
 
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
