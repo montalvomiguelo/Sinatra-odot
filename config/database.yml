@@ -1,0 +1,14 @@
+development:
+  adapter: mysql2
+  database: odot_sinatra
+  pool: 2
+  username: root
+  password:
+  host: 127.0.0.1
+test:
+  adapter: mysql2
+  database: odot_sinatra_test
+  pool: 2
+  username: root
+  password:
+  host: 127.0.0.1

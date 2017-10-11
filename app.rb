@@ -1,6 +1,9 @@
 require 'sinatra'
+require 'sinatra/activerecord'
 
 class Todo < Sinatra::Base
+  register Sinatra::ActiveRecordExtension
+
   set :environment, ENV['RACK_ENV']
 
   configure do
