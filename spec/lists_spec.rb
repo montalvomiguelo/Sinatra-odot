@@ -72,4 +72,13 @@ describe App do
 
     expect(last_response.status).to eq(500)
   end
+
+  it "removes a list " do
+    list = create(:list, title: "Groceries list")
+
+    delete "/lists/#{list.id}"
+    follow_redirect!
+
+    expect(last_response.body).not_to include('Groceries list')
+  end
 end

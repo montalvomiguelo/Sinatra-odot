@@ -53,4 +53,10 @@ class App < Sinatra::Base
     end
   end
 
+  delete '/lists/:id' do
+    @list = List.find(params[:id])
+    @list.destroy
+    redirect to('/')
+  end
+
 end
