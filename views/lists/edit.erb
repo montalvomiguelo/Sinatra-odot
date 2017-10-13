@@ -1,0 +1,7 @@
+<h1>Edit <%= @list.title %></h1>
+<form action="/lists/<%= @list.id %>" method="post">
+  <input type="hidden" name="_method" value="put" />
+  <label for="title">Title</label>
+  <input type="text" name="title" id="title" value="<%= @list.title %>">
+  <input type="submit">
+</form>

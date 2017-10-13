@@ -35,4 +35,41 @@ describe App do
     post '/lists'
     expect(last_response.status).to eq(500)
   end
+
+  it "shows a single list" do
+    list = create(:list, title: "Groceries list")
+
+    get "/lists/#{list.id}"
+
+    expect(last_response).to be_ok
+    expect(last_response.body).to include('Groceries list')
+  end
+
+  it "shows a form to edit the list" do
+    list = create(:list, title: "Groceries list")
+
+    get "/lists/#{list.id}/edit"
+
+    expect(last_response).to be_ok
+    expect(last_response.body).to include('Edit Groceries list')
+    expect(last_response.body).to include("lists/#{list.id}")
+    expect(last_response.body).to include('value="Groceries list"')
+  end
+
+  it "updates an existing list" do
+    list = create(:list, title: "Groceries list")
+
+    put "/lists/#{list.id}", { title: 'Title updated' }
+    follow_redirect!
+
+    expect(last_response).to be_ok
+
+    list = List.find(list.id)
+
+    expect(list.title).to include('Title updated')
+
+    put "/lists/#{list.id}", { title: '' }
+
+    expect(last_response.status).to eq(500)
+  end
 end

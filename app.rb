@@ -1,6 +1,7 @@
 class App < Sinatra::Base
   register Sinatra::ActiveRecordExtension
   set :environment, ENV['RACK_ENV']
+  use Rack::MethodOverride
 
   configure do
   end
@@ -20,6 +21,27 @@ class App < Sinatra::Base
     erb :"lists/new"
   end
 
+  get '/lists/:id/edit' do
+    @list = List.find(params[:id])
+    erb :"lists/edit"
+  end
+
+  get '/lists/:id' do
+    @list = List.find(params[:id])
+    erb :"lists/show"
+  end
+
+  put '/lists/:id' do
+    @list = List.find(params[:id])
+    @list.title = params[:title]
+
+    if @list.save
+      redirect to("/lists/#{@list.id}")
+    else
+      halt erb(:error)
+    end
+  end
+
   post '/lists' do
     list = List.new
     list.title = params[:title]
@@ -30,4 +52,5 @@ class App < Sinatra::Base
       halt erb(:error)
     end
   end
+
 end
