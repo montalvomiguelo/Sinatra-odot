@@ -1,15 +1,13 @@
-describe Todo do
-  it "retrieves all todo lists" do
-    todo_list = create(:todo_list)
-    todo_list = create(:todo_list)
-    todo_list = create(:todo_list)
+describe App do
+  it "retrieves all lists" do
+    list = create(:list)
 
     get '/'
 
     expect(last_response).to be_ok
-    expect(last_response.body).to include('Todo lists')
+    expect(last_response.body).to include('Lists')
 
-    expect(TodoList.all.size).to eq(3)
+    expect(List.all.size).to eq(1)
     expect(last_response.body).to include('List title')
   end
 
@@ -17,7 +15,7 @@ describe Todo do
     get '/lists/new'
 
     expect(last_response).to be_ok
-    expect(last_response.body).to include('New todo list')
+    expect(last_response.body).to include('New list')
   end
 
   it "creates a list" do

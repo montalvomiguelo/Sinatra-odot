@@ -1,6 +1,6 @@
-class CreateTodoList < ActiveRecord::Migration
+class CreateLists < ActiveRecord::Migration
   def change
-    create_table :todo_lists do |t|
+    create_table :lists do |t|
       t.string :title
       t.timestamps null: false
     end

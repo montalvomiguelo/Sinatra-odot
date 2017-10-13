@@ -1,4 +1,4 @@
-describe Todo do
+describe App do
   it "says the app is running" do
     get '/test'
     expect(last_response).to be_ok

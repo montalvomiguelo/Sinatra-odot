@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :todo_list do
+  factory :list do
     title "List title"
   end
 end

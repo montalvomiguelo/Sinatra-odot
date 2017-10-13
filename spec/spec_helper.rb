@@ -1,19 +1,20 @@
 ENV['RACK_ENV'] = 'test'
 
-require_relative '../app'  # <-- your sinatra app
 require 'rspec'
-require 'rack/test'
 require 'rack/test'
 require 'factory_girl'
 require 'sinatra/activerecord'
 require 'factories'
 require 'database_cleaner'
 
+require_relative '../app'  # <-- your sinatra app
+
+
 module RSpecMixin
   include Rack::Test::Methods
 
   def app
-    Todo
+    App
   end
 end
 
