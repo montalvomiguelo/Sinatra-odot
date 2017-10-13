@@ -1,4 +1,12 @@
+require_relative '../app'  # <-- your sinatra app
+
 describe App do
+  include Rack::Test::Methods
+
+  def app
+    App
+  end
+
   it "says the app is running" do
     get '/test'
     expect(last_response).to be_ok

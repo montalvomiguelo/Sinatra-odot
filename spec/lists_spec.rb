@@ -1,4 +1,12 @@
+require_relative '../app'  # <-- your sinatra app
+
 describe App do
+  include Rack::Test::Methods
+
+  def app
+    App
+  end
+
   it "retrieves all lists" do
     list = create(:list)
 
