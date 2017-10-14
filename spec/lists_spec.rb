@@ -10,7 +10,7 @@ describe App do
   it "retrieves all lists" do
     list = create(:list)
 
-    get '/'
+    get '/lists'
 
     expect(last_response).to be_ok
     expect(last_response.body).to include('Lists')
@@ -32,7 +32,7 @@ describe App do
 
     expect(last_response.body).to include('Clean the car')
 
-    post '/lists'
+    post '/lists', { title: '' }
     expect(last_response.status).to eq(500)
   end
 

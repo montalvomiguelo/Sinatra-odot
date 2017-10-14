@@ -15,7 +15,7 @@ class App < Sinatra::Base
     return 'The application is running'
   end
 
-  get '/' do
+  get '/lists' do
     @lists = List.all
     erb :"lists/index"
   end
@@ -50,7 +50,7 @@ class App < Sinatra::Base
     list.title = params[:title]
 
     if list.save
-      redirect to('/')
+      redirect to('/lists')
     else
       halt erb(:error)
     end
