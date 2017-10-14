@@ -1,0 +1,13 @@
+<h1>New task</h1>
+
+<form action="/tasks" method="post">
+  <label for="title">Title</label>
+  <input type="text" name="title" id="title">
+  <select id="list" name="list_id">
+    <option value>List</option>
+    <% @lists.each do |list| %>
+      <option value="<%= list.id %>"><%= list.title  %></option>
+    <% end %>
+  </select>
+  <input type="submit">
+</form>

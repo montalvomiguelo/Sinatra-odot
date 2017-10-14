@@ -1,0 +1,12 @@
+<h1>Tasks</h1>
+
+<ul>
+  <% @tasks.each do |task| %>
+    <li>
+      <%= task.title %>
+      <% if task.list %>
+        <em>(<small><%= task.list.title %></small>)</em>
+      <% end %>
+    </li>
+  <% end %>
+</ul>

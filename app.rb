@@ -62,4 +62,27 @@ class App < Sinatra::Base
     redirect to('/')
   end
 
+  get '/tasks' do
+    @tasks = Task.includes(:list)
+    erb :"tasks/index"
+  end
+
+  get '/tasks/new' do
+    @lists = List.all
+    erb :"tasks/new"
+  end
+
+  post '/tasks' do
+    task = Task.new
+    task.title = params[:title]
+    task.list_id = params[:list_id]
+
+    if task.save
+      redirect to('/tasks')
+    else
+      halt erb(:error)
+    end
+
+  end
+
 end
