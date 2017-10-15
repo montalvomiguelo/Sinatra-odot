@@ -1,4 +1,4 @@
-require_relative '../app'  # <-- your sinatra app
+require_relative '../app'
 
 describe App do
   include Rack::Test::Methods
@@ -7,7 +7,7 @@ describe App do
     App
   end
 
-  it "retrieves all lists" do
+  it "retreives all lists" do
     list = create(:list)
 
     get '/lists'
@@ -19,21 +19,30 @@ describe App do
     expect(last_response.body).to include('List title')
   end
 
-  it "allows to create a new todo list" do
+  it "shows a form to create a new todo list" do
     get '/lists/new'
 
     expect(last_response).to be_ok
     expect(last_response.body).to include('New list')
   end
 
-  it "creates a list" do
-    post '/lists', { title: 'Clean the car' }
-    follow_redirect!
+  describe "creating a list" do
+    context 'with valid params' do
+      it 'success' do
+        post '/lists', { title: 'Clean the car' }
 
-    expect(last_response.body).to include('Clean the car')
+        follow_redirect!
 
-    post '/lists', { title: '' }
-    expect(last_response.status).to eq(500)
+        expect(last_response.body).to include('Clean the car')
+      end
+    end
+
+    context 'with invalid params' do
+      it 'fails' do
+        post '/lists', { title: '' }
+        expect(last_response.status).to eq(500)
+      end
+    end
   end
 
   it "shows a single list" do
@@ -45,7 +54,7 @@ describe App do
     expect(last_response.body).to include('Groceries list')
   end
 
-  it "shows a form to edit the list" do
+  it "shows a form to edit a list" do
     list = create(:list, title: "Groceries list")
 
     get "/lists/#{list.id}/edit"
@@ -56,33 +65,40 @@ describe App do
     expect(last_response.body).to include('value="Groceries list"')
   end
 
-  it "updates an existing list" do
-    list = create(:list, title: "Groceries list")
+  describe 'updating a list' do
+    let (:list) { create(:list, title: "Groceries list") }
 
-    put "/lists/#{list.id}", { title: 'Title updated' }
-    follow_redirect!
+    context 'with valid params' do
+      it 'success' do
+        put "/lists/#{list.id}", { title: 'Title updated' }
 
-    expect(last_response).to be_ok
+        follow_redirect!
 
-    list = List.find(list.id)
+        expect(last_response).to be_ok
+        expect(last_response.body).to include('Title updated')
+      end
+    end
 
-    expect(list.title).to include('Title updated')
+    context 'with invalid params' do
+      it 'fails' do
+        put "/lists/#{list.id}", { title: '' }
 
-    put "/lists/#{list.id}", { title: '' }
-
-    expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(500)
+      end
+    end
   end
 
   it "removes a list " do
     list = create(:list, title: "Groceries list")
 
     delete "/lists/#{list.id}"
+
     follow_redirect!
 
     expect(last_response.body).not_to include('Groceries list')
   end
 
-  it 'retrieves all tasks' do
+  it 'retreives all tasks' do
     task = create(:task, title: "Study ruby")
 
     get '/tasks'
@@ -102,27 +118,37 @@ describe App do
     expect(last_response.body).to include('List title')
   end
 
-  it 'creates a new task' do
-    list = create(:list, title: "Tuts list")
+  describe 'creating a task' do
+    context 'with valid params' do
+      it 'success' do
+        list = create(:list, title: "Tuts list")
 
-    post '/tasks', { title: 'Learn ruby core', list_id: list.id }
-    follow_redirect!
+        post '/tasks', { title: 'Learn ruby core', list_id: list.id }
 
-    expect(last_response.body).to include('Learn ruby core')
-    expect(last_response.body).to include('Tuts list')
-    expect(List.find(list.id).tasks.size).to eq(1)
-    expect(List.find(list.id).tasks.first.title).to eq('Learn ruby core')
+        follow_redirect!
 
-    post '/tasks', { title: '' }
+        expect(last_response.body).to include('Learn ruby core')
+        expect(last_response.body).to include('Tuts list')
+        expect(List.find(list.id).tasks.size).to eq(1)
+        expect(List.find(list.id).tasks.first.title).to eq('Learn ruby core')
 
-    expect(last_response.body).to include('Error')
-    expect(last_response.status).to eq(500)
+        post '/tasks', { title: 'Javascript fundamentals' }
 
-    post '/tasks', { title: 'Javascript fundamentals' }
-    follow_redirect!
+        follow_redirect!
 
-    expect(last_response.body).to include('Javascript fundamentals')
-    expect(Task.last.list).to eq(nil)
+        expect(last_response.body).to include('Javascript fundamentals')
+        expect(Task.last.list).to eq(nil)
+      end
+    end
+
+    context 'with invalid params' do
+      it 'fails' do
+        post '/tasks', { title: '' }
+
+        expect(last_response.body).to include('Error')
+        expect(last_response.status).to eq(500)
+      end
+    end
   end
 
 end
