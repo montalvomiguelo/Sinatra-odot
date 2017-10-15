@@ -215,4 +215,14 @@ describe App do
     end
   end
 
+  it "removes a task " do
+    task = create(:task, title: "Build an image gallery in ruby")
+
+    delete "/tasks/#{task.id}"
+
+    follow_redirect!
+
+    expect(last_response.body).not_to include('Build an image gallery in ruby')
+  end
+
 end

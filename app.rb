@@ -61,7 +61,7 @@ class App < Sinatra::Base
     @list = List.find(params[:id])
     @list.destroy
 
-    redirect to('/')
+    redirect to('/lists')
   end
 
   get '/tasks' do
@@ -109,6 +109,13 @@ class App < Sinatra::Base
     else
       halt erb(:error)
     end
+  end
+
+  delete '/tasks/:id' do
+    @task = Task.find(params[:id])
+    @task.destroy
+
+    redirect to('/tasks')
   end
 
 end
