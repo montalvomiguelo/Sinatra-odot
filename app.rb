@@ -1,3 +1,6 @@
+require_relative 'models/list'
+require_relative 'models/task'
+
 class App < Sinatra::Base
 
   register Sinatra::ActiveRecordExtension
@@ -8,8 +11,6 @@ class App < Sinatra::Base
 
   configure do
   end
-
-  Dir[File.join(File.dirname(__FILE__), 'models', '*.rb')].each { |model| require model }
 
   get '/test' do
     return 'The application is running'
