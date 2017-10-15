@@ -1,0 +1,17 @@
+<h1>Edit <%= @task.title %></h1>
+
+<form action="/tasks/<%= @task.id %>" method="post">
+  <input type="hidden" name="_method" value="put" />
+  <label for="title">Title</label>
+  <input type="text" name="title" id="title" value="<%= @task.title %>">
+  <select id="list" name="list_id">
+    <option value>List</option>
+    <% @lists.each do |list| %>
+      <option value="<%= list.id %>"
+        <% if @task.list == list %>selected="selected"<% end %>>
+        <%= list.title  %>
+      </option>
+    <% end %>
+  </select>
+  <input type="submit">
+</form>

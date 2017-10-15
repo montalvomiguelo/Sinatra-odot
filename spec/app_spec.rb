@@ -172,4 +172,47 @@ describe App do
     end
   end
 
+  it 'shows a form to edit a task' do
+    list = create(:list, title: "Tuts list")
+    task = create(:task, title: "Study ruby")
+
+    get "/tasks/#{task.id}/edit"
+
+    expect(last_response).to be_ok
+    expect(last_response.body).to include('Tuts list')
+    expect(last_response.body).to include('Study ruby')
+  end
+
+  describe 'updating a task' do
+    let (:list) { create(:list, title: "Tuts list") }
+    let (:task) { create(:task, title: "Study ruby") }
+
+    context 'with valid params' do
+      it 'success' do
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id }
+
+        follow_redirect!
+
+        task.reload
+
+        expect(last_response.body).to include('Study laravel')
+        expect(task.list).to eq(list)
+      end
+    end
+
+    context 'with invalid params' do
+      it 'fails' do
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: 23 }
+
+        expect(last_response).not_to be_ok
+        expect(last_response.status).to eq(500)
+
+        put "/tasks/#{task.id}", { title: '', list_id: list.id }
+
+        expect(last_response).not_to be_ok
+        expect(last_response.status).to eq(500)
+      end
+    end
+  end
+
 end

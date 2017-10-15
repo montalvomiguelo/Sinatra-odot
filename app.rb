@@ -92,4 +92,23 @@ class App < Sinatra::Base
     erb :"tasks/show"
   end
 
+  get '/tasks/:id/edit' do
+    @task = Task.find(params[:id])
+    @lists = List.all
+
+    erb :"tasks/edit"
+  end
+
+  put '/tasks/:id' do
+    @task = Task.find(params[:id])
+    @task.title = params[:title]
+    @task.list_id = params[:list_id]
+
+    if @task.save
+      redirect to("/tasks/#{@task.id}")
+    else
+      halt erb(:error)
+    end
+  end
+
 end
