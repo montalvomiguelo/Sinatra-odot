@@ -151,4 +151,25 @@ describe App do
     end
   end
 
+  describe 'showing a single task' do
+    context 'with valid id' do
+      it 'success' do
+        task = create(:task, title: "Study ruby")
+
+        get "/tasks/#{task.id}"
+
+        expect(last_response).to be_ok
+        expect(last_response.body).to include('Study ruby')
+      end
+    end
+
+    context 'with invalid id' do
+      it 'fails' do
+        get '/tasks/23'
+
+        expect(last_response).not_to be_ok
+      end
+    end
+  end
+
 end

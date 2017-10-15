@@ -3,10 +3,12 @@
 <ul>
   <% @tasks.each do |task| %>
     <li>
-      <%= task.title %>
-      <% if task.list %>
-        <em>(<small><%= task.list.title %></small>)</em>
-      <% end %>
+      <a href="/tasks/<%= task.id %>">
+        <%= task.title %>
+        <% if task.list %>
+          <em>(<small><%= task.list.title %></small>)</em>
+        <% end %>
+      </a>
     </li>
   <% end %>
 </ul>
