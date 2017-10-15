@@ -92,14 +92,15 @@ describe App do
     end
   end
 
-  it "removes a list " do
-    list = create(:list, title: "Groceries list")
+  it "deletes a list and its related tasks" do
+    list = create(:list_with_tasks, title: "Groceries list")
 
     delete "/lists/#{list.id}"
 
     follow_redirect!
 
     expect(last_response.body).not_to include('Groceries list')
+    expect(Task.all.size).to eq(0)
   end
 
   it 'retreives all tasks' do
@@ -217,7 +218,7 @@ describe App do
     end
   end
 
-  it "removes a task " do
+  it "deletes a task " do
     task = create(:task, title: "Build an image gallery in ruby")
 
     delete "/tasks/#{task.id}"
