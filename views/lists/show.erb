@@ -1,5 +1,15 @@
 <h1><%= @list.title %></h1>
 
+<ul>
+  <% @list.tasks.each do |task| %>
+    <li>
+      <a href="/tasks/<%= task.id %>/edit">Edit
+        <%= task.title %>
+      </a>
+    </li>
+  <% end %>
+</ul>
+
 <a href="/lists/<%= @list.id %>/edit">Edit</a>
 
 <form action="/lists/<%= @list.id %>" method="post">

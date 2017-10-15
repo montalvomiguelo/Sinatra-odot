@@ -46,12 +46,15 @@ describe App do
   end
 
   it "shows a single list" do
-    list = create(:list, title: "Groceries list")
+    list = create(:list_with_tasks, title: "Groceries list")
 
     get "/lists/#{list.id}"
 
     expect(last_response).to be_ok
     expect(last_response.body).to include('Groceries list')
+
+    expect(list.tasks.size).to eq(5)
+    expect(last_response.body).to include('Task title')
   end
 
   it "shows a form to edit a list" do
