@@ -40,6 +40,7 @@ describe App do
     context 'with invalid params' do
       it 'fails' do
         post '/lists', { title: '' }
+
         expect(last_response.status).to eq(500)
       end
     end
@@ -134,19 +135,17 @@ describe App do
         expect(last_response.body).to include('Tuts list')
         expect(List.find(list.id).tasks.size).to eq(1)
         expect(List.find(list.id).tasks.first.title).to eq('Learn ruby core')
-
-        post '/tasks', { title: 'Javascript fundamentals' }
-
-        follow_redirect!
-
-        expect(last_response.body).to include('Javascript fundamentals')
-        expect(Task.last.list).to eq(nil)
       end
     end
 
     context 'with invalid params' do
       it 'fails' do
         post '/tasks', { title: '' }
+
+        expect(last_response.body).to include('Error')
+        expect(last_response.status).to eq(500)
+
+        post '/tasks', { title: 'Task with no list', list_id: '' }
 
         expect(last_response.body).to include('Error')
         expect(last_response.status).to eq(500)

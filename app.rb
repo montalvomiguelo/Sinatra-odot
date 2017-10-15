@@ -18,6 +18,7 @@ class App < Sinatra::Base
 
   get '/lists' do
     @lists = List.all
+
     erb :"lists/index"
   end
 

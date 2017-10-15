@@ -15,5 +15,6 @@ FactoryGirl.define do
 
   factory :task do
     title "Task title"
+    list
   end
 end
