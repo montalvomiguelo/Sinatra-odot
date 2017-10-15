@@ -1,9 +1,9 @@
-require 'sinatra/base'
-require 'sinatra/activerecord'
-
 class App < Sinatra::Base
+
   register Sinatra::ActiveRecordExtension
+
   set :environment, ENV['RACK_ENV']
+
   use Rack::MethodOverride
 
   configure do
@@ -59,6 +59,7 @@ class App < Sinatra::Base
   delete '/lists/:id' do
     @list = List.find(params[:id])
     @list.destroy
+
     redirect to('/')
   end
 
@@ -82,7 +83,6 @@ class App < Sinatra::Base
     else
       halt erb(:error)
     end
-
   end
 
 end
