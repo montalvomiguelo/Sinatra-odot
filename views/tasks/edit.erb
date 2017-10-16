@@ -6,11 +6,24 @@
   <input type="text" name="title" id="title" value="<%= @task.title %>">
   <select id="list" name="list_id">
     <% @lists.each do |list| %>
-      <option value="<%= list.id %>"
+      <option
+        value="<%= list.id %>"
         <% if @task.list == list %>selected="selected"<% end %>>
-        <%= list.title  %>
+          <%= list.title  %>
       </option>
     <% end %>
+  </select>
+  <select id="completed" name="completed">
+    <option
+      value="true"
+      <% if @task.completed_at %>selected="selected"<% end %>>
+        Complete
+    </option>
+    <option
+      value="false"
+      <% unless @task.completed_at %>selected="selected"<% end %>>
+      Incomplete
+    </option>
   </select>
   <input type="submit">
 </form>

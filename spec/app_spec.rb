@@ -184,6 +184,7 @@ describe App do
     expect(last_response).to be_ok
     expect(last_response.body).to include('Tuts list')
     expect(last_response.body).to include('Study ruby')
+    expect(last_response.body).to include('Complete')
   end
 
   describe 'updating a task' do
@@ -192,7 +193,7 @@ describe App do
 
     context 'with valid params' do
       it 'success' do
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id }
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true' }
 
         follow_redirect!
 
@@ -200,6 +201,23 @@ describe App do
 
         expect(last_response.body).to include('Study laravel')
         expect(task.list).to eq(list)
+        expect(task.completed_at).not_to be_nil
+
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'false' }
+
+        follow_redirect!
+
+        task.reload
+
+        expect(task.completed_at).to be_nil
+
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'wtf' }
+
+        follow_redirect!
+
+        task.reload
+
+        expect(task.completed_at).to be_nil
       end
     end
 

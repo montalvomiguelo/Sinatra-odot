@@ -105,6 +105,12 @@ class App < Sinatra::Base
     @task.title = params[:title]
     @task.list_id = params[:list_id]
 
+    if params[:completed] == 'true'
+      @task.completed_at = Time.now
+    elsif params[:completed] == 'false'
+      @task.completed_at = nil
+    end
+
     if @task.save
       redirect to("/tasks/#{@task.id}")
     else
