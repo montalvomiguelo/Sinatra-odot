@@ -1,11 +1,28 @@
 <h1>Lists</h1>
 
-<ul>
-  <% @lists.each do |list| %>
-    <li>
-      <a href="/lists/<%= list.id  %>">
-        <%= list.title %>
-      </a>
-    </li>
-  <% end %>
-</ul>
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Tasks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @lists.each do |list| %>
+      <tr>
+        <td>
+          <a href="/lists/<%= list.id  %>">
+            <%= list.title %>
+          </a>
+        </td>
+        <td><%= list.tasks.size %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<hr>
+
+<p>
+  <a href="/lists/new">New list</a>
+</p>

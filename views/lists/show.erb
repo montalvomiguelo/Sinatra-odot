@@ -1,18 +1,32 @@
 <h1><%= @list.title %></h1>
 
-<ul>
-  <% @list.tasks.each do |task| %>
-    <li>
-      <a href="/tasks/<%= task.id %>/edit">Edit
-        <%= task.title %>
-      </a>
-    </li>
-  <% end %>
-</ul>
+<table>
+  <caption>Tasks</caption>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Completed at</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @list.tasks.each do |task| %>
+      <tr>
+        <td>
+          <a href="/tasks/<%= task.id %>">
+            <%= task.title %>
+          </a>
+        </td>
+        <td>
+          <%= task.completed_at %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 
-<a href="/lists/<%= @list.id %>/edit">Edit</a>
+<hr>
 
-<form action="/lists/<%= @list.id %>" method="post">
-  <input type="hidden" name="_method" value="delete" />
-  <input type="submit" value="delete">
-</form>
+<p>
+  <a href="/lists/<%= @list.id %>/edit">Edit</a>
+  <a href="/lists">All lists</a>
+</p>

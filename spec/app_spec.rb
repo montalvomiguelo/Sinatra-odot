@@ -64,7 +64,7 @@ describe App do
     get "/lists/#{list.id}/edit"
 
     expect(last_response).to be_ok
-    expect(last_response.body).to include('Edit Groceries list')
+    expect(last_response.body).to include('Edit list')
     expect(last_response.body).to include("lists/#{list.id}")
     expect(last_response.body).to include('value="Groceries list"')
   end

@@ -1,14 +1,32 @@
 <h1>Tasks</h1>
 
-<ul>
-  <% @tasks.each do |task| %>
-    <li>
-      <a href="/tasks/<%= task.id %>">
-        <%= task.title %>
-        <% if task.list %>
-          <em>(<small><%= task.list.title %></small>)</em>
-        <% end %>
-      </a>
-    </li>
-  <% end %>
-</ul>
+<table>
+  <thead>
+    <th>Title</th>
+    <th>List</th>
+    <th>Completed at</th>
+  </thead>
+  <tbody>
+    <% @tasks.each do |task| %>
+      <tr>
+        <td>
+          <a href="/tasks/<%= task.id %>">
+            <%= task.title %>
+          </a>
+        </td>
+        <td>
+          <a href="/lists/<%= task.list.id %>">
+            <%= task.list.title %>
+          </a>
+        </td>
+        <td>
+          <%= task.completed_at %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<p>
+  <a href="/tasks/new">New task</a>
+</p>

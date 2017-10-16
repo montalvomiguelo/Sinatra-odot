@@ -1,8 +1,27 @@
 <h1><%= @task.title %></h1>
 
-<a href="/tasks/<%= @task.id %>/edit">Edit</a>
+<table>
+  <thead>
+    <tr>
+      <th>List</th>
+      <th>Completed at</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+  <tr>
+    <td>
+      <a href="/lists/<%= @task.list.id %>">
+        <%= @task.list.title %>
+      </a>
+    </td>
+    <td><%= @task.completed_at %></td>
+  </tr>
+</table>
 
-<form action="/tasks/<%= @task.id %>" method="post">
-  <input type="hidden" name="_method" value="delete" />
-  <input type="submit" value="delete">
-</form>
+<hr>
+
+<p>
+  <a href="/tasks/<%= @task.id %>/edit">Edit</a>
+  <a href="/tasks">All tasks</a>
+</p>
