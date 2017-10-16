@@ -134,8 +134,8 @@ describe App do
 
         expect(last_response.body).to include('Learn ruby core')
         expect(last_response.body).to include('Tuts list')
-        expect(List.find(list.id).tasks.size).to eq(1)
-        expect(List.find(list.id).tasks.first.title).to eq('Learn ruby core')
+        expect(List.first.tasks.size).to eq(1)
+        expect(Task.first.title).to eq('Learn ruby core')
       end
     end
 
@@ -193,7 +193,7 @@ describe App do
 
     context 'with valid params' do
       it 'success' do
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true' }
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true', duration: '162' }
 
         follow_redirect!
 
@@ -202,6 +202,7 @@ describe App do
         expect(last_response.body).to include('Study laravel')
         expect(task.list).to eq(list)
         expect(task.completed_at).not_to be_nil
+        expect(task.duration).to eq(162)
 
         put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'false' }
 
@@ -229,6 +230,11 @@ describe App do
         expect(last_response.status).to eq(500)
 
         put "/tasks/#{task.id}", { title: '', list_id: list.id }
+
+        expect(last_response).not_to be_ok
+        expect(last_response.status).to eq(500)
+
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true', duration: 'not_number' }
 
         expect(last_response).not_to be_ok
         expect(last_response.status).to eq(500)

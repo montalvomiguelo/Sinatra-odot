@@ -5,6 +5,7 @@
     <th>Title</th>
     <th>List</th>
     <th>Completed at</th>
+    <th>Duration</th>
   </thead>
   <tbody>
     <% @tasks.each do |task| %>
@@ -21,6 +22,9 @@
         </td>
         <td>
           <%= task.completed_at %>
+        </td>
+        <td>
+          <%= task.duration %>
         </td>
       </tr>
     <% end %>

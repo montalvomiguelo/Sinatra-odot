@@ -104,6 +104,7 @@ class App < Sinatra::Base
     @task = Task.find(params[:id])
     @task.title = params[:title]
     @task.list_id = params[:list_id]
+    @task.duration = params[:duration] if params[:duration]
 
     if params[:completed] == 'true'
       @task.completed_at = Time.now unless @task.completed_at

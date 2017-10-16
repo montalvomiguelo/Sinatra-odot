@@ -6,6 +6,7 @@
     <tr>
       <th>Title</th>
       <th>Completed at</th>
+      <th>Duration</th>
     </tr>
   </thead>
   <tbody>
@@ -18,6 +19,9 @@
         </td>
         <td>
           <%= task.completed_at %>
+        </td>
+        <td>
+          <%= task.duration %>
         </td>
       </tr>
     <% end %>
