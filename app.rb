@@ -106,7 +106,7 @@ class App < Sinatra::Base
     @task.list_id = params[:list_id]
 
     if params[:completed] == 'true'
-      @task.completed_at = Time.now
+      @task.completed_at = Time.now unless @task.completed_at
     elsif params[:completed] == 'false'
       @task.completed_at = nil
     end
