@@ -6,6 +6,7 @@ gem 'sinatra-activerecord'
 gem 'activerecord', "4.2.10"
 gem 'mysql2'
 gem 'rake'
+gem 'bcrypt'
 
 group :test do
   gem 'rspec'
