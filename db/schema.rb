@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(version: 20171016041421) do
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
     t.datetime "completed_at"
-    t.integer  "duration",     limit: 4,   default: 0, null: false
+    t.integer  "duration",     limit: 4,   default: 0
   end
 
   add_index "tasks", ["list_id"], name: "index_tasks_on_list_id", using: :btree
