@@ -1,5 +1,6 @@
 require_relative 'models/list'
 require_relative 'models/task'
+require_relative 'models/user'
 
 class App < Sinatra::Base
 

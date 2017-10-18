@@ -17,4 +17,8 @@ FactoryGirl.define do
     title "Task title"
     list
   end
+
+  factory :user do
+    email "test@example.com"
+  end
 end
