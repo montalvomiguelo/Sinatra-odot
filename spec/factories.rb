@@ -18,7 +18,5 @@ FactoryGirl.define do
     list
   end
 
-  factory :user do
-    email "test@example.com"
-  end
+  factory :user
 end
