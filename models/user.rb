@@ -6,9 +6,9 @@ class User < ActiveRecord::Base
                       with: /\A[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]+\z/
                     }
 
-  before_save :downcase_email
+                    before_save :downcase_email, if: :email
 
   def downcase_email
-    self.email.downcase! if self.email
+    self.email.downcase!
   end
 end
