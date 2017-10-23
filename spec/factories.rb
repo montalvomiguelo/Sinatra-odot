@@ -18,5 +18,8 @@ FactoryGirl.define do
     list
   end
 
-  factory :user
+  factory :user do
+    email "johndoe@example.com"
+    password "123456"
+  end
 end

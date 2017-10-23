@@ -14,31 +14,48 @@ class App < Sinatra::Base
   configure do
   end
 
-  get '/test' do
-    return 'The application is running'
+  helpers do
+    def current_user
+      @current_user ||= User.find(session[:id]) if session[:id]
+    end
+
+    def protected!
+      return if current_user
+      halt 401, "Not authorized\n"
+    end
   end
 
   get '/lists' do
+    protected!
+
     @lists = List.all
 
     erb :"lists/index"
   end
 
   get '/lists/new' do
+    protected!
+
     erb :"lists/new"
   end
 
   get '/lists/:id/edit' do
+    protected!
+
     @list = List.find(params[:id])
     erb :"lists/edit"
   end
 
   get '/lists/:id' do
+    protected!
+
     @list = List.find(params[:id])
     erb :"lists/show"
   end
 
   put '/lists/:id' do
+    protected!
+
     @list = List.find(params[:id])
     @list.title = params[:title]
 
@@ -50,6 +67,8 @@ class App < Sinatra::Base
   end
 
   post '/lists' do
+    protected!
+
     list = List.new
     list.title = params[:title]
 
@@ -61,6 +80,8 @@ class App < Sinatra::Base
   end
 
   delete '/lists/:id' do
+    protected!
+
     @list = List.find(params[:id])
     @list.destroy
 
