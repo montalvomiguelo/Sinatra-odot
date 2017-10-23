@@ -3,6 +3,10 @@ Bundler.require
 
 ENV['RACK_ENV'] ||= 'development'
 
-require_relative 'app'
+Dir[File.join(File.dirname(__FILE__), 'controllers', '*.rb')].each { |controller| require controller }
 
-run App
+use TasksController
+use UsersController
+use UserSessionsController
+
+run ListsController
