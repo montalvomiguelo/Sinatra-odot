@@ -3,6 +3,7 @@ require_relative 'models/task'
 require_relative 'models/user'
 
 class App < Sinatra::Base
+  enable :sessions
 
   register Sinatra::ActiveRecordExtension
 
@@ -140,10 +141,30 @@ class App < Sinatra::Base
     @user.password = params[:password]
 
     if @user.save
+      session[:id] = @user.id
       redirect to('/lists')
     else
       halt erb(:error)
     end
+  end
+
+  get '/sessions/login' do
+    erb :"sessions/login"
+  end
+
+  post '/sessions' do
+    email = params[:email]
+    password = params[:password]
+
+    user = User.find_by(email: email).try(:authenticate, password)
+
+    if user
+      session[:id] = user.id
+      redirect to ('/lists')
+    else
+      redirect to('/sessions/login')
+    end
+
   end
 
 end
