@@ -18,9 +18,8 @@ describe App do
       context "when user is logget in" do
         it "retreives all lists" do
           list = create(:list)
-          user = create(:user)
 
-          allow_any_instance_of(App).to receive(:current_user).and_return(user)
+          sign_in(create(:user))
 
           get '/lists'
 
@@ -37,7 +36,7 @@ describe App do
   describe "showing a form to create a new todo list" do
     context "when user is logged in" do
       it "success" do
-        allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+        sign_in(create(:user))
 
         get '/lists/new'
 
@@ -66,7 +65,7 @@ describe App do
 
     context 'with valid params' do
       it 'success' do
-        allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+        sign_in(create(:user))
 
         post '/lists', { title: 'Clean the car' }
 
@@ -78,7 +77,7 @@ describe App do
 
     context 'with invalid params' do
       it 'fails' do
-        allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+        sign_in(create(:user))
 
         post '/lists', { title: '' }
 
@@ -97,7 +96,7 @@ describe App do
     end
 
     it "success with logged in user" do
-      allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+      sign_in(create(:user))
 
       get "/lists/#{list.id}"
 
@@ -119,7 +118,7 @@ describe App do
     end
 
     it "is ok for logged in users" do
-      allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+      sign_in(create(:user))
       get "/lists/#{list.id}/edit"
 
       expect(last_response).to be_ok
@@ -140,7 +139,7 @@ describe App do
 
     context 'with valid params' do
       it 'success' do
-        allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+        sign_in(create(:user))
 
         put "/lists/#{list.id}", { title: 'Title updated' }
 
@@ -153,7 +152,7 @@ describe App do
 
     context 'with invalid params' do
       it 'fails' do
-        allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+        sign_in(create(:user))
 
         put "/lists/#{list.id}", { title: '' }
 
@@ -166,7 +165,7 @@ describe App do
     let(:list) { create(:list_with_tasks, title: "Groceries list") }
 
     it "success" do
-      allow_any_instance_of(App).to receive(:current_user).and_return(create(:user))
+      sign_in(create(:user))
 
       delete "/lists/#{list.id}"
 

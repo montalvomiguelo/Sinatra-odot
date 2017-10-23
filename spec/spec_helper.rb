@@ -1,5 +1,6 @@
 ENV['RACK_ENV'] = 'test'
 
+require_relative 'helpers'
 require 'bundler'
 Bundler.require(:default, :test)
 
@@ -20,6 +21,8 @@ Bundler.require(:default, :test)
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
+
+  config.include Helpers
 
   config.include(Shoulda::Matchers::ActiveModel, type: :model)
   config.include(Shoulda::Matchers::ActiveRecord, type: :model)
