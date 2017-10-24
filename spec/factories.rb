@@ -1,6 +1,7 @@
 FactoryGirl.define do
   factory :list do
     title "List title"
+    user
 
     factory :list_with_tasks do
       transient do
@@ -19,7 +20,17 @@ FactoryGirl.define do
   end
 
   factory :user do
-    email "johndoe@example.com"
+    sequence(:email, 1000) { |n| "person#{n}@example.com" }
     password "123456"
+
+    factory :user_with_lists do
+      transient do
+        lists_count 2
+      end
+
+      after(:create) do |user, evaluator|
+        create_list(:list_with_tasks, evaluator.lists_count, user: user)
+      end
+    end
   end
 end

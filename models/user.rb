@@ -8,6 +8,8 @@ class User < ActiveRecord::Base
 
                     before_save :downcase_email, if: :email
 
+  has_many :lists
+
   def downcase_email
     self.email.downcase!
   end

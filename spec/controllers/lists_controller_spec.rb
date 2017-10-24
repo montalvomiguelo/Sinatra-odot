@@ -18,17 +18,17 @@ describe ListsController do
       end
 
       context "when user is logged in" do
-        it "retreives all lists" do
-          list = create(:list)
+        it "retreives all user's lists" do
+          user_one = create(:user_with_lists)
 
-          allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+          allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
           get '/lists'
 
           expect(last_response).to be_ok
           expect(last_response.body).to include('Lists')
 
-          expect(List.all.size).to eq(1)
+          expect(user_one.lists.all.size).to eq(2)
           expect(last_response.body).to include('List title')
         end
       end
@@ -75,6 +75,18 @@ describe ListsController do
 
         expect(last_response.body).to include('Clean the car')
       end
+
+      it 'belongs to current user' do
+        user = create(:user)
+
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+
+        post '/lists', { title: 'Clean the car' }
+
+        follow_redirect!
+
+        expect(List.last.user).to eq(user)
+      end
     end
 
     context 'with invalid params' do
@@ -89,60 +101,97 @@ describe ListsController do
   end
 
   describe "Showing a single list" do
-    let(:list) { create(:list_with_tasks, title: "Groceries list") }
-
     it "halts an error when no user is logged in" do
+      list = create(:list_with_tasks, title: "Groceries list")
       get "/lists/#{list.id}"
 
       expect(last_response.status).to eq(401)
     end
 
-    it "success with logged in user" do
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+    context "when user is logged in" do
+      it "success if list belongs to user" do
+        user = create(:user_with_lists)
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
-      get "/lists/#{list.id}"
+        list = user.lists.first
 
-      expect(last_response).to be_ok
-      expect(last_response.body).to include('Groceries list')
+        get "/lists/#{list.id}"
 
-      expect(list.tasks.size).to eq(5)
-      expect(last_response.body).to include('Task title')
+        expect(last_response).to be_ok
+        expect(last_response.body).to include('List title')
+
+        expect(list.tasks.size).to eq(5)
+        expect(last_response.body).to include('Task title')
+      end
+
+      it "fails if list does not belong to user" do
+        user_one = create(:user_with_lists)
+        user_two = create(:user_with_lists)
+
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_two.lists.first
+
+        get "/lists/#{list.id}"
+
+        expect(last_response).not_to be_ok
+      end
     end
+
   end
 
   describe "Showing a form to edit a list" do
-    let(:list) { create(:list, title: "Groceries list") }
-
     it "halts an error for not logged in user" do
+      list = create(:list, title: "Groceries list")
       get "/lists/#{list.id}/edit"
 
       expect(last_response.status).to eq(401)
     end
 
-    it "is ok for logged in users" do
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
-      get "/lists/#{list.id}/edit"
+    context "when user is logged in" do
+      let (:user_one) { create(:user_with_lists) }
+      let (:user_two) { create(:user_with_lists) }
 
-      expect(last_response).to be_ok
-      expect(last_response.body).to include('Edit list')
-      expect(last_response.body).to include("lists/#{list.id}")
-      expect(last_response.body).to include('value="Groceries list"')
+      it "is ok if list belongs to user" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_one.lists.first
+        get "/lists/#{list.id}/edit"
+
+        expect(last_response).to be_ok
+        expect(last_response.body).to include('Edit list')
+        expect(last_response.body).to include("lists/#{list.id}")
+        expect(last_response.body).to include('value="List title"')
+      end
+
+      it "fails if list does not belong to user" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_two.lists.first
+
+        get "/lists/#{list.id}/edit"
+
+        expect(last_response).not_to be_ok
+      end
     end
   end
 
   describe 'Updating a list' do
-    let (:list) { create(:list, title: "Groceries list") }
-
     it "halts an error when user is not logged in" do
+      list = create(:list, title: "Groceries list")
       put "/lists/#{list.id}", { title: 'Title updated' }
 
       expect(last_response.status).to eq(401)
     end
 
-    context 'with valid params' do
-      it 'success' do
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+    context 'when user is logged in' do
+      let(:user_one) { create(:user_with_lists) }
+      let(:user_two) { create(:user_with_lists) }
 
+      it "success with valid params" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_one.lists.first
         put "/lists/#{list.id}", { title: 'Title updated' }
 
         follow_redirect!
@@ -150,34 +199,56 @@ describe ListsController do
         expect(last_response).to be_ok
         expect(last_response.body).to include('Title updated')
       end
-    end
 
-    context 'with invalid params' do
-      it 'fails' do
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+      it 'fails with inavlid params' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
+        list = user_one.lists.first
         put "/lists/#{list.id}", { title: '' }
+
+        expect(last_response.status).to eq(500)
+      end
+
+      it 'fails if list does not belong to user' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_two.lists.last
+        put "/lists/#{list.id}", { title: 'Title updated' }
 
         expect(last_response.status).to eq(500)
       end
     end
   end
 
-  describe "Deleting a list and its related tasks" do
-    let(:list) { create(:list_with_tasks, title: "Groceries list") }
+  describe "Deleting a list" do
+    context "when user is logged in" do
+      let(:user_one) { create(:user_with_lists) }
+      let(:user_two) { create(:user_with_lists) }
 
-    it "is ok for logged in user" do
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+      it "is ok if list belongs to user" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
-      delete "/lists/#{list.id}"
+        list = user_one.lists.last
+        delete "/lists/#{list.id}"
 
-      follow_redirect!
+        follow_redirect!
 
-      expect(last_response.body).not_to include('Groceries list')
-      expect(Task.all.size).to eq(0)
+        expect(user_one.lists.all.size).to eq(1)
+      end
+
+      it "fails if list does not belong to user" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_two.lists.last
+        delete "/lists/#{list.id}"
+
+        expect(last_response.status).to eq(500)
+      end
     end
 
     it "halts an error when user is not logged in" do
+      list = create(:list)
+
       delete "/lists/#{list.id}"
 
       expect(last_response.status).to eq(401)
