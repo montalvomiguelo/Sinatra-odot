@@ -8,7 +8,7 @@ describe ListsController do
     ListsController
   end
 
-  describe "Fetching lists" do
+  describe "Listing lists" do
     context "when user is logged out" do
       it "halts an error" do
         get '/lists'

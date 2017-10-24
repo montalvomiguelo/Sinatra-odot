@@ -1,16 +1,22 @@
 class TasksController < ApplicationController
 
   get '/tasks' do
+    protected!
+
     @tasks = Task.includes(:list)
     erb :"tasks/index"
   end
 
   get '/tasks/new' do
+    protected!
+
     @lists = List.all
     erb :"tasks/new"
   end
 
   post '/tasks' do
+    protected!
+
     task = Task.new
     task.title = params[:title]
     task.list_id = params[:list_id]
@@ -23,12 +29,16 @@ class TasksController < ApplicationController
   end
 
   get '/tasks/:id' do
+    protected!
+
     @task = Task.find(params[:id])
 
     erb :"tasks/show"
   end
 
   get '/tasks/:id/edit' do
+    protected!
+
     @task = Task.find(params[:id])
     @lists = List.all
 
@@ -36,6 +46,8 @@ class TasksController < ApplicationController
   end
 
   put '/tasks/:id' do
+    protected!
+
     @task = Task.find(params[:id])
     @task.title = params[:title]
     @task.list_id = params[:list_id]
@@ -55,6 +67,8 @@ class TasksController < ApplicationController
   end
 
   delete '/tasks/:id' do
+    protected!
+
     @task = Task.find(params[:id])
     @task.destroy
 
