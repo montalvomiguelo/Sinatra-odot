@@ -3,7 +3,7 @@ class ListsController < ApplicationController
   get '/lists' do
     protected!
 
-    @lists = current_user.lists.all
+    @lists = current_user.lists.all.preload(:tasks)
 
     erb :"lists/index"
   end
