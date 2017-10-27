@@ -1,6 +1,8 @@
 FactoryGirl.define do
   factory :list do
-    title "List title"
+    sequence :title do |n|
+      "List title #{n}"
+    end
     user
 
     factory :list_with_tasks do
@@ -15,7 +17,9 @@ FactoryGirl.define do
   end
 
   factory :task do
-    title "Task title"
+    sequence :title do |n|
+      "Task title #{n}"
+    end
     list
   end
 
