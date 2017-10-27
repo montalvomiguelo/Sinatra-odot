@@ -161,7 +161,7 @@ describe ListsController do
         expect(last_response).to be_ok
         expect(last_response.body).to include('Edit list')
         expect(last_response.body).to include("lists/#{list.id}")
-        expect(last_response.body).to include('value="List title"')
+        expect(last_response.body).to include("#{list.title}")
       end
 
       it "fails if list does not belong to user" do
