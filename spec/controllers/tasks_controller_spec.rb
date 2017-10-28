@@ -18,15 +18,19 @@ describe TasksController do
       end
     end
 
-    it "shows up all tasks" do
-      task = create(:task, title: "Study ruby")
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+    context "when user is logged in" do
+      let!(:user_one) { create(:user_with_lists) }
+      let!(:user_two) { create(:user_with_lists) }
 
-      get '/tasks'
+      it "shows all user's tasks" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
-      expect(last_response).to be_ok
-      expect(last_response.body).to include('Study ruby')
-      expect(Task.all).to eq([task])
+        get '/tasks'
+
+        expect(last_response).to be_ok
+        expect(last_response.body).not_to include(user_two.lists.first.title)
+        expect(last_response.body).not_to include(user_two.lists.last.title)
+      end
     end
   end
 
@@ -40,15 +44,19 @@ describe TasksController do
     end
 
     it "is allowed for logged in users" do
-      list = create(:list)
+      user_one = create(:user_with_lists)
+      user_two = create(:user_with_lists)
 
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
       get '/tasks/new'
 
       expect(last_response).to be_ok
       expect(last_response.body).to include('New task')
-      expect(last_response.body).to include('List title')
+      expect(last_response.body).to include("#{user_one.lists.first.title}")
+      expect(last_response.body).to include("#{user_one.lists.last.title}")
+      expect(last_response.body).to_not include("#{user_two.lists.first.title}")
+      expect(last_response.body).to_not include("#{user_two.lists.last.title}")
     end
   end
 
@@ -62,33 +70,40 @@ describe TasksController do
     end
 
     context 'with valid params' do
+      let(:user_one) { create(:user_with_lists) }
+      let(:user_two) { create(:user_with_lists) }
+
       it 'success' do
-        list = create(:list, title: "Tuts list")
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_one.lists.first
 
         post '/tasks', { title: 'Learn ruby core', list_id: list.id }
 
         follow_redirect!
 
         expect(last_response.body).to include('Learn ruby core')
-        expect(last_response.body).to include('Tuts list')
-        expect(List.first.tasks.size).to eq(1)
-        expect(Task.first.title).to eq('Learn ruby core')
+        expect(last_response.body).to include("#{list.title}")
+        expect(list.tasks.last.title).to eq('Learn ruby core')
       end
     end
 
     context 'with invalid params' do
+      let(:user_one) { create(:user_with_lists) }
+      let(:user_two) { create(:user_with_lists) }
+
       it 'fails' do
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        list = user_two.lists.first
 
         post '/tasks', { title: '' }
 
         expect(last_response.body).to include('Error')
         expect(last_response.status).to eq(500)
 
-        post '/tasks', { title: 'Task with no list', list_id: '' }
+        post '/tasks', { title: 'Vim tutor', list_id: list.id }
 
-        expect(last_response.body).to include('Error')
         expect(last_response.status).to eq(500)
       end
     end
@@ -104,14 +119,30 @@ describe TasksController do
     end
 
     context 'with valid id' do
-      it 'success' do
-        task = create(:task, title: "Study ruby")
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+      let!(:user_one) { create(:user_with_lists) }
+      let!(:user_two) { create(:user_with_lists) }
+
+      it 'success if belongs to user' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        task = user_one.lists.first.tasks.first
 
         get "/tasks/#{task.id}"
 
         expect(last_response).to be_ok
-        expect(last_response.body).to include('Study ruby')
+        expect(last_response.body).to include("#{task.title}")
+      end
+
+      it 'fails if does not belong to user' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
+
+        task = user_two.lists.first.tasks.first
+
+        get "/tasks/#{task.id}"
+
+        expect(last_response).not_to be_ok
+        expect(last_response.status).to eq(500)
+
       end
     end
 
@@ -126,6 +157,8 @@ describe TasksController do
   end
 
   describe 'Showing a form to edit a task' do
+    let(:user) { create(:user_with_lists) }
+
     it "halts an error for non logged in users" do
       list = create(:list, title: "Tuts list")
       task = create(:task, title: "Study ruby")
@@ -136,22 +169,23 @@ describe TasksController do
     end
 
     it "is allowed for logged in users" do
-      list = create(:list, title: "Tuts list")
-      task = create(:task, title: "Study ruby")
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+      list = user.lists.first
+      task = list.tasks.first
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
       get "/tasks/#{task.id}/edit"
 
       expect(last_response).to be_ok
-      expect(last_response.body).to include('Tuts list')
-      expect(last_response.body).to include('Study ruby')
+      expect(last_response.body).to include("#{list.title}")
+      expect(last_response.body).to include("#{task.title}")
       expect(last_response.body).to include('Complete')
     end
   end
 
   describe 'Updating a task' do
-    let (:list) { create(:list, title: "Tuts list") }
-    let (:task) { create(:task, title: "Study ruby") }
+    let(:user) { create(:user_with_lists) }
+    let(:list) { user.lists.first }
+    let(:task) { list.tasks.last }
 
     it "halts an error for non logged in users" do
       put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true', duration: '162' }
@@ -160,9 +194,15 @@ describe TasksController do
     end
 
     context 'with valid params' do
-      it 'success' do
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true', duration: '162' }
+      it 'success if belongs to user' do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+
+        put "/tasks/#{task.id}", {
+          title: 'Study laravel',
+          list_id: task.list.id,
+          completed: 'true',
+          duration: '162'
+        }
 
         follow_redirect!
 
@@ -173,7 +213,11 @@ describe TasksController do
         expect(task.completed_at).not_to be_nil
         expect(task.duration).to eq(162)
 
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'false' }
+        put "/tasks/#{task.id}", {
+          title: 'Study laravel',
+          list_id: task.list.id,
+          completed: 'false'
+        }
 
         follow_redirect!
 
@@ -193,18 +237,24 @@ describe TasksController do
 
     context 'with invalid params' do
       it 'fails' do
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: 23 }
+        user_two = create(:user_with_lists)
+
+        task = user.lists.first.tasks.last
+        list = user_two.lists.last
+
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id }
 
         expect(last_response).not_to be_ok
         expect(last_response.status).to eq(500)
 
-        put "/tasks/#{task.id}", { title: '', list_id: list.id }
+        put "/tasks/#{task.id}", { title: '' }
 
         expect(last_response).not_to be_ok
         expect(last_response.status).to eq(500)
 
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true', duration: 'not_number' }
+        put "/tasks/#{task.id}", { title: 'Study laravel', completed: 'true', duration: 'not_number' }
 
         expect(last_response).not_to be_ok
         expect(last_response.status).to eq(500)
@@ -221,16 +271,34 @@ describe TasksController do
       expect(last_response.status).to eq(401)
     end
 
-    it "redirects to /lists on success" do
-      task = create(:task, title: "Build an image gallery in ruby")
-      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+    context "when user is logged in" do
+      let(:user) { create(:user_with_lists) }
+      let(:task) { user.lists.last.tasks.first }
 
-      delete "/tasks/#{task.id}"
+      it "success if belongs to user" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
-      follow_redirect!
+        delete "/tasks/#{task.id}"
 
-      expect(last_response.body).not_to include('Build an image gallery in ruby')
+        follow_redirect!
+
+        expect(last_response.body).not_to include('Build an image gallery in ruby')
+      end
+
+      it "fails if it does not belong to user" do
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
+
+        user_two = create(:user_with_lists)
+
+        task_two = user_two.lists.first.tasks.last
+
+        delete "/tasks/#{task_two.id}"
+
+        expect(last_response).not_to be_ok
+        expect(last_response.status).to eq(500)
+      end
     end
+
   end
 
 end

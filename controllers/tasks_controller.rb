@@ -3,23 +3,24 @@ class TasksController < ApplicationController
   get '/tasks' do
     protected!
 
-    @tasks = Task.includes(:list)
+    @tasks = Task.includes(:list).where(lists: { user_id: current_user.id })
     erb :"tasks/index"
   end
 
   get '/tasks/new' do
     protected!
 
-    @lists = List.all
+    @lists = current_user.lists
     erb :"tasks/new"
   end
 
   post '/tasks' do
     protected!
 
-    task = Task.new
+    list = current_user.lists.find(params[:list_id])
+
+    task = list.tasks.new
     task.title = params[:title]
-    task.list_id = params[:list_id]
 
     if task.save
       redirect to('/tasks')
@@ -31,7 +32,7 @@ class TasksController < ApplicationController
   get '/tasks/:id' do
     protected!
 
-    @task = Task.find(params[:id])
+    @task = Task.includes(:list).where(lists: { user_id: current_user.id }).find(params[:id])
 
     erb :"tasks/show"
   end
@@ -48,9 +49,11 @@ class TasksController < ApplicationController
   put '/tasks/:id' do
     protected!
 
-    @task = Task.find(params[:id])
+    @task = Task.includes(:list).where(lists: { user_id: current_user.id }).find(params[:id])
+    @list = current_user.lists.find(params[:list_id]) if params[:list_id]
+
     @task.title = params[:title]
-    @task.list_id = params[:list_id]
+    @task.list_id = @list.id if @list
     @task.duration = params[:duration] if params[:duration]
 
     if params[:completed] == 'true'
@@ -69,7 +72,8 @@ class TasksController < ApplicationController
   delete '/tasks/:id' do
     protected!
 
-    @task = Task.find(params[:id])
+    @task = Task.includes(:list).where(lists: { user_id: current_user.id }).find(params[:id])
+
     @task.destroy
 
     redirect to('/tasks')
