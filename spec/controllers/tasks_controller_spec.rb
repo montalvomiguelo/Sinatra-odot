@@ -61,6 +61,9 @@ describe TasksController do
   end
 
   describe 'Creating a task' do
+    let(:user_one) { create(:user_with_lists) }
+    let(:user_two) { create(:user_with_lists) }
+
     it "halts an error for non logged in users" do
       list = create(:list, title: "Tuts list")
 
@@ -70,9 +73,6 @@ describe TasksController do
     end
 
     context 'with valid params' do
-      let(:user_one) { create(:user_with_lists) }
-      let(:user_two) { create(:user_with_lists) }
-
       it 'success' do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
@@ -89,9 +89,6 @@ describe TasksController do
     end
 
     context 'with invalid params' do
-      let(:user_one) { create(:user_with_lists) }
-      let(:user_two) { create(:user_with_lists) }
-
       it 'fails' do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
@@ -110,6 +107,9 @@ describe TasksController do
   end
 
   describe 'Showing a single task' do
+    let!(:user_one) { create(:user_with_lists) }
+    let!(:user_two) { create(:user_with_lists) }
+
     it "halts an error for non logged in users" do
       task = create(:task, title: "Study ruby")
 
@@ -119,8 +119,6 @@ describe TasksController do
     end
 
     context 'with valid id' do
-      let!(:user_one) { create(:user_with_lists) }
-      let!(:user_two) { create(:user_with_lists) }
 
       it 'success if belongs to user' do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
@@ -149,7 +147,7 @@ describe TasksController do
     context 'with invalid id' do
       it 'fails' do
         get '/tasks/23'
-        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
+        allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
         expect(last_response).not_to be_ok
       end
@@ -158,6 +156,7 @@ describe TasksController do
 
   describe 'Showing a form to edit a task' do
     let(:user) { create(:user_with_lists) }
+    let(:user_two) { create(:user_with_lists) }
 
     it "halts an error for non logged in users" do
       list = create(:list, title: "Tuts list")
@@ -173,11 +172,14 @@ describe TasksController do
       task = list.tasks.first
       allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
+      list_two = user_two.lists.first
+
       get "/tasks/#{task.id}/edit"
 
       expect(last_response).to be_ok
       expect(last_response.body).to include("#{list.title}")
       expect(last_response.body).to include("#{task.title}")
+      expect(last_response.body).not_to include("#{list_two.title}")
       expect(last_response.body).to include('Complete')
     end
   end

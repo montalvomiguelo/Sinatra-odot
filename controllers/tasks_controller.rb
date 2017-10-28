@@ -41,7 +41,7 @@ class TasksController < ApplicationController
     protected!
 
     @task = Task.find(params[:id])
-    @lists = List.all
+    @lists = current_user.lists
 
     erb :"tasks/edit"
   end
