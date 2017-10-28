@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171024191907) do
+ActiveRecord::Schema.define(version: 20171028064755) do
 
   create_table "lists", force: :cascade do |t|
     t.string   "title",      limit: 255
@@ -34,15 +34,17 @@ ActiveRecord::Schema.define(version: 20171024191907) do
   add_index "tasks", ["list_id"], name: "index_tasks_on_list_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "first_name",      limit: 255
-    t.string   "last_name",       limit: 255
-    t.string   "email",           limit: 255
-    t.string   "password_digest", limit: 255
+    t.string   "first_name",           limit: 255
+    t.string   "last_name",            limit: 255
+    t.string   "email",                limit: 255
+    t.string   "password_digest",      limit: 255
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "password_reset_token", limit: 255
   end
 
   add_index "users", ["email"], name: "index_users_on_email", using: :btree
+  add_index "users", ["password_reset_token"], name: "index_users_on_password_reset_token", using: :btree
 
   add_foreign_key "tasks", "lists"
 end
