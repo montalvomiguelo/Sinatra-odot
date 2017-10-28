@@ -20,6 +20,7 @@ describe ListsController do
       context "when user is logged in" do
         it "retreives all user's lists" do
           user_one = create(:user_with_lists)
+          user_two = create(:user_with_lists)
 
           allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
@@ -27,6 +28,7 @@ describe ListsController do
 
           expect(last_response).to be_ok
           expect(last_response.body).to include('Lists')
+          expect(last_response.body).not_to include("#{user_two.lists.first.title}")
 
           expect(user_one.lists.all.size).to eq(2)
           expect(last_response.body).to include('List title')
