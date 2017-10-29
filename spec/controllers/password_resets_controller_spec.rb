@@ -101,6 +101,12 @@ describe PasswordResetsController do
         }.to change{user.password_digest}
       end
 
+      it "clears the password_reset_token" do
+        put "/password_resets/#{user.password_reset_token}", { password: 'password' }
+        user.reload
+        expect(user.password_reset_token).to be_nil
+      end
+
       it "redirects to login page if new password is valid" do
         put "/password_resets/#{user.password_reset_token}", { password: 'password' }
 

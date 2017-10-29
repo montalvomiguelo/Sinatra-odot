@@ -40,6 +40,7 @@ class PasswordResetsController < ApplicationController
     halt 404 unless user
 
     user.password = params[:password]
+    user.password_reset_token = nil
 
     if user.save
       redirect '/sessions/login'
