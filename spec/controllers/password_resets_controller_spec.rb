@@ -1,5 +1,6 @@
 require_relative '../../controllers/application_controller'
 require_relative '../../controllers/password_resets_controller'
+require_relative '../../controllers/user_sessions_controller'
 
 Pony.override_options = { :via => :test }
 
@@ -7,7 +8,7 @@ describe PasswordResetsController do
   include Rack::Test::Methods
 
   def app
-    PasswordResetsController
+    PasswordResetsController.new(UserSessionsController)
   end
 
   it "Shows a page to create a new password reset" do
@@ -84,6 +85,7 @@ describe PasswordResetsController do
   end
 
   describe "Updates user's password" do
+
     context "with valid token" do
       let(:user) { create(:user) }
       before { user.generate_password_reset_token! }

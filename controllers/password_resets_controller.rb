@@ -1,7 +1,4 @@
-require_relative 'user_sessions_controller'
-
 class PasswordResetsController < ApplicationController
-  use UserSessionsController
 
   get '/password_resets/new' do
     erb :"password_resets/new"
