@@ -41,6 +41,13 @@ describe UsersController do
         }
 
         expect(last_response.status).to eq(500)
+
+        post '/users', {
+          email: 'user@example.com',
+          password: ''
+        }
+
+        expect(last_response.status).to eq(500)
       end
     end
 

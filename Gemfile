@@ -7,6 +7,7 @@ gem 'activerecord', "4.2.10"
 gem 'mysql2'
 gem 'rake'
 gem 'bcrypt'
+gem 'pony'
 
 group :test do
   gem 'rspec'

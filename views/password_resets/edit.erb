@@ -1,0 +1,9 @@
+<h1>Password reset</h1>
+
+<form action="/password_resets/<%= @user.password_reset_token %>" method="post">
+  <input type="hidden" name="_method" value="put" />
+
+  <input type="password" name="password" placeholder="Password">
+
+  <input type="submit">
+</form>

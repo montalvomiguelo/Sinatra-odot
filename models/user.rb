@@ -8,6 +8,8 @@ class User < ActiveRecord::Base
 
                     before_save :downcase_email, if: :email
 
+  validates :password, presence: true
+
   has_many :lists
 
   def downcase_email

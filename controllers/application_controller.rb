@@ -25,5 +25,9 @@ class ApplicationController < Sinatra::Base
       return if current_user
       halt 401, "Not authorized\n"
     end
+
+    def base_url
+      @base_url ||= "#{request.env['rack.url_scheme']}://{request.env['HTTP_HOST']}"
+    end
   end
 end
