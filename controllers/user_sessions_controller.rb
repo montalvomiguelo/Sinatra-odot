@@ -4,6 +4,10 @@ class UserSessionsController < ApplicationController
     erb :"sessions/login"
   end
 
+  get '/sessions/logout' do
+    session.clear
+  end
+
   post '/sessions' do
     email = params[:email]
     password = params[:password]

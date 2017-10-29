@@ -1,3 +1,4 @@
+require_relative '../../controllers/application_controller'
 require_relative '../../controllers/user_sessions_controller'
 
 describe UserSessionsController do
@@ -12,6 +13,16 @@ describe UserSessionsController do
 
     expect(last_response).to be_ok
     expect(last_response.body).to include('Login')
+  end
+
+  describe "Logs out the user" do
+    let(:user) { create(:user, email: 'johndoe@example.com', password: '123456') }
+
+    it "clears the session hash" do
+      get "/sessions/logout"
+
+      expect(last_request.env['rack.session']).to be_blank
+    end
   end
 
   describe "logging in a user" do
