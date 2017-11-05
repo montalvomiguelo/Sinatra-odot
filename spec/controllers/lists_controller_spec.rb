@@ -8,6 +8,10 @@ describe ListsController do
     ListsController
   end
 
+  before do
+    env "rack.session", {:csrf => "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo="}
+  end
+
   describe "Listing lists" do
     context "when user is logged out" do
       it "halts an error" do
@@ -63,15 +67,17 @@ describe ListsController do
       it "halts an error" do
         post '/lists', { title: 'Clean the car' }
 
-        expect(last_response.status).to eq(401)
+        expect(last_response.status).to eq(403)
       end
     end
 
     context 'with valid params' do
+      let(:token) { "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo=" }
+
       it 'success' do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
 
-        post '/lists', { title: 'Clean the car' }
+        post '/lists', { title: 'Clean the car' }, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -83,7 +89,7 @@ describe ListsController do
 
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
-        post '/lists', { title: 'Clean the car' }
+        post '/lists', { title: 'Clean the car' }, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -92,12 +98,14 @@ describe ListsController do
     end
 
     context 'with invalid params' do
+      let(:token) { "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo=" }
+
       it 'fails' do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(create(:user))
 
-        post '/lists', { title: '' }
+        post '/lists', { title: '' }, 'HTTP_X_CSRF_TOKEN' => token
 
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(400)
       end
     end
   end
@@ -136,7 +144,8 @@ describe ListsController do
 
         get "/lists/#{list.id}"
 
-        expect(last_response).not_to be_ok
+        expect(last_response).to_not be_ok
+        expect(last_response.status).to eq(404)
       end
     end
 
@@ -179,9 +188,11 @@ describe ListsController do
   end
 
   describe 'Updating a list' do
+    let!(:token) { "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo=" }
+
     it "halts an error when user is not logged in" do
       list = create(:list, title: "Groceries list")
-      put "/lists/#{list.id}", { title: 'Title updated' }
+      put "/lists/#{list.id}", { title: 'Title updated' }, 'HTTP_X_CSRF_TOKEN' => token
 
       expect(last_response.status).to eq(401)
     end
@@ -194,7 +205,7 @@ describe ListsController do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
         list = user_one.lists.first
-        put "/lists/#{list.id}", { title: 'Title updated' }
+        put "/lists/#{list.id}", { title: 'Title updated' }, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -206,23 +217,26 @@ describe ListsController do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
         list = user_one.lists.first
-        put "/lists/#{list.id}", { title: '' }
+        put "/lists/#{list.id}", { title: '' }, 'HTTP_X_CSRF_TOKEN' => token
 
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(400)
+        expect(last_response.body).to eq('Invalid params')
       end
 
       it 'fails if list does not belong to user' do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
         list = user_two.lists.last
-        put "/lists/#{list.id}", { title: 'Title updated' }
+        put "/lists/#{list.id}", { title: 'Title updated' }, 'HTTP_X_CSRF_TOKEN' => token
 
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(404)
       end
     end
   end
 
   describe "Deleting a list" do
+    let!(:token) { "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo=" }
+
     context "when user is logged in" do
       let(:user_one) { create(:user_with_lists) }
       let(:user_two) { create(:user_with_lists) }
@@ -231,7 +245,7 @@ describe ListsController do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
         list = user_one.lists.last
-        delete "/lists/#{list.id}"
+        delete "/lists/#{list.id}", {}, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -242,16 +256,16 @@ describe ListsController do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user_one)
 
         list = user_two.lists.last
-        delete "/lists/#{list.id}"
+        delete "/lists/#{list.id}", {}, 'HTTP_X_CSRF_TOKEN' => token
 
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(404)
       end
     end
 
     it "halts an error when user is not logged in" do
       list = create(:list)
 
-      delete "/lists/#{list.id}"
+      delete "/lists/#{list.id}", {}, 'HTTP_X_CSRF_TOKEN' => token
 
       expect(last_response.status).to eq(401)
     end

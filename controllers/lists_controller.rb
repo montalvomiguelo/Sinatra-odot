@@ -17,27 +17,30 @@ class ListsController < ApplicationController
   get '/lists/:id/edit' do
     protected!
 
-    @list = current_user.lists.find(params[:id])
+    find_list(params[:id])
+
     erb :"lists/edit"
   end
 
   get '/lists/:id' do
     protected!
 
-    @list = current_user.lists.find(params[:id])
+    find_list(params[:id])
+
     erb :"lists/show"
   end
 
   put '/lists/:id' do
     protected!
 
-    @list = current_user.lists.find(params[:id])
+    find_list(params[:id])
+
     @list.title = params[:title]
 
     if @list.save
       redirect "/lists/#{@list.id}"
     else
-      halt erb(:error)
+      halt 400, 'Invalid params'
     end
   end
 
@@ -51,17 +54,27 @@ class ListsController < ApplicationController
     if list.save
       redirect to('/lists')
     else
-      halt erb(:error)
+      halt 400, 'Invalid params'
     end
   end
 
   delete '/lists/:id' do
     protected!
 
-    @list = current_user.lists.find(params[:id])
+    find_list(params[:id])
+
     @list.destroy
 
     redirect to('/lists')
+  end
+
+  private
+  def find_list(id)
+    begin
+      @list = current_user.lists.find(params[:id])
+    rescue
+      halt 404, 'Not found'
+    end
   end
 
 end
