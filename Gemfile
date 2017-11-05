@@ -11,6 +11,7 @@ gem 'pony'
 gem 'rack-protection'
 
 group :test do
+  gem 'nyan-cat-formatter'
   gem 'awesome_print'
   gem 'rspec'
   gem 'pry'
