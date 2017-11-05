@@ -8,6 +8,10 @@ describe TasksController do
     TasksController
   end
 
+  before do
+    env "rack.session", {:csrf => "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo="}
+  end
+
   describe "Listing tasks" do
 
     context "when user is not logged in " do
@@ -63,11 +67,12 @@ describe TasksController do
   describe 'Creating a task' do
     let(:user_one) { create(:user_with_lists) }
     let(:user_two) { create(:user_with_lists) }
+    let(:token) { "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo=" }
 
     it "halts an error for non logged in users" do
       list = create(:list, title: "Tuts list")
 
-      post '/tasks', { title: 'Learn ruby core', list_id: list.id }
+      post '/tasks', { title: 'Learn ruby core', list_id: list.id }, 'HTTP_X_CSRF_TOKEN' => token
 
       expect(last_response.status).to eq(401)
     end
@@ -78,7 +83,7 @@ describe TasksController do
 
         list = user_one.lists.first
 
-        post '/tasks', { title: 'Learn ruby core', list_id: list.id }
+        post '/tasks', { title: 'Learn ruby core', list_id: list.id }, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -94,14 +99,14 @@ describe TasksController do
 
         list = user_two.lists.first
 
-        post '/tasks', { title: '' }
+        post '/tasks', { title: '' }, 'HTTP_X_CSRF_TOKEN' => token
 
-        expect(last_response.body).to include('Error')
-        expect(last_response.status).to eq(500)
+        expect(last_response.body).to include('Not found')
+        expect(last_response.status).to eq(404)
 
-        post '/tasks', { title: 'Vim tutor', list_id: list.id }
+        post '/tasks', { title: 'Vim tutor', list_id: list.id }, 'HTTP_X_CSRF_TOKEN' => token
 
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(404)
       end
     end
   end
@@ -139,7 +144,8 @@ describe TasksController do
         get "/tasks/#{task.id}"
 
         expect(last_response).not_to be_ok
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(404)
+        expect(last_response.body).to eq('Not found')
 
       end
     end
@@ -188,9 +194,10 @@ describe TasksController do
     let(:user) { create(:user_with_lists) }
     let(:list) { user.lists.first }
     let(:task) { list.tasks.last }
+    let(:token) { "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo=" }
 
     it "halts an error for non logged in users" do
-      put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true', duration: '162' }
+      put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'true', duration: '162' }, 'HTTP_X_CSRF_TOKEN' => token
 
       expect(last_response.status).to eq(401)
     end
@@ -204,7 +211,7 @@ describe TasksController do
           list_id: task.list.id,
           completed: 'true',
           duration: '162'
-        }
+        }, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -219,7 +226,7 @@ describe TasksController do
           title: 'Study laravel',
           list_id: task.list.id,
           completed: 'false'
-        }
+        }, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -227,7 +234,7 @@ describe TasksController do
 
         expect(task.completed_at).to be_nil
 
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'wtf' }
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id, completed: 'wtf' }, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -246,29 +253,31 @@ describe TasksController do
 
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
-        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id }
+        put "/tasks/#{task.id}", { title: 'Study laravel', list_id: list.id }, 'HTTP_X_CSRF_TOKEN' => token
 
         expect(last_response).not_to be_ok
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(404)
 
-        put "/tasks/#{task.id}", { title: '' }
-
-        expect(last_response).not_to be_ok
-        expect(last_response.status).to eq(500)
-
-        put "/tasks/#{task.id}", { title: 'Study laravel', completed: 'true', duration: 'not_number' }
+        put "/tasks/#{task.id}", { title: '' }, 'HTTP_X_CSRF_TOKEN' => token
 
         expect(last_response).not_to be_ok
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(400)
+
+        put "/tasks/#{task.id}", { title: 'Study laravel', completed: 'true', duration: 'not_number' }, 'HTTP_X_CSRF_TOKEN' => token
+
+        expect(last_response).not_to be_ok
+        expect(last_response.status).to eq(400)
       end
     end
   end
 
   describe "Deleting a task " do
+    let(:token) { "Mi65Gq3AdKNU74OOsaOgWKdXdBq2RvCoHHcc6cVPpBo=" }
+
     it "halts an error for non logged in users" do
       task = create(:task, title: "Build an image gallery in ruby")
 
-      delete "/tasks/#{task.id}"
+      delete "/tasks/#{task.id}", {}, 'HTTP_X_CSRF_TOKEN' => token
 
       expect(last_response.status).to eq(401)
     end
@@ -280,7 +289,7 @@ describe TasksController do
       it "success if belongs to user" do
         allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
 
-        delete "/tasks/#{task.id}"
+        delete "/tasks/#{task.id}", {}, 'HTTP_X_CSRF_TOKEN' => token
 
         follow_redirect!
 
@@ -294,10 +303,10 @@ describe TasksController do
 
         task_two = user_two.lists.first.tasks.last
 
-        delete "/tasks/#{task_two.id}"
+        delete "/tasks/#{task_two.id}", {}, 'HTTP_X_CSRF_TOKEN' => token
 
         expect(last_response).not_to be_ok
-        expect(last_response.status).to eq(500)
+        expect(last_response.status).to eq(404)
       end
     end
 

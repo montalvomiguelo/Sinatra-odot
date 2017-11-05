@@ -17,7 +17,7 @@ class TasksController < ApplicationController
   post '/tasks' do
     protected!
 
-    list = current_user.lists.find(params[:list_id])
+    list = find_list(params[:list_id])
 
     task = list.tasks.new
     task.title = params[:title]
@@ -32,7 +32,7 @@ class TasksController < ApplicationController
   get '/tasks/:id' do
     protected!
 
-    @task = Task.includes(:list).where(lists: { user_id: current_user.id }).find(params[:id])
+    find_task
 
     erb :"tasks/show"
   end
@@ -49,8 +49,12 @@ class TasksController < ApplicationController
   put '/tasks/:id' do
     protected!
 
-    @task = Task.includes(:list).where(lists: { user_id: current_user.id }).find(params[:id])
-    @list = current_user.lists.find(params[:list_id]) if params[:list_id]
+    find_task
+    begin
+      @list = current_user.lists.find(params[:list_id]) if params[:list_id]
+    rescue
+      halt 404, 'Not found'
+    end
 
     @task.title = params[:title]
     @task.list_id = @list.id if @list
@@ -65,18 +69,35 @@ class TasksController < ApplicationController
     if @task.save
       redirect to("/tasks/#{@task.id}")
     else
-      halt erb(:error)
+      halt 400, 'Invalid params'
     end
   end
 
   delete '/tasks/:id' do
     protected!
 
-    @task = Task.includes(:list).where(lists: { user_id: current_user.id }).find(params[:id])
+    find_task
 
     @task.destroy
 
     redirect to('/tasks')
+  end
+
+  private
+  def find_list(id)
+    begin
+      list = current_user.lists.find(id)
+    rescue
+      halt 404, 'Not found'
+    end
+  end
+
+  def find_task
+    begin
+      @task = Task.includes(:list).where(lists: { user_id: current_user.id }).find(params[:id])
+    rescue
+      halt 404, 'Not found'
+    end
   end
 
 end
