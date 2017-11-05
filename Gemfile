@@ -8,6 +8,7 @@ gem 'mysql2'
 gem 'rake'
 gem 'bcrypt'
 gem 'pony'
+gem 'rack-protection'
 
 group :test do
   gem 'awesome_print'

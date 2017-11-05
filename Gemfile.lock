@@ -91,6 +91,7 @@ DEPENDENCIES
   pony
   pry
   pry-byebug
+  rack-protection
   rack-test
   rake
   rspec

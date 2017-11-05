@@ -7,8 +7,6 @@ class ApplicationController < Sinatra::Base
 
   register Sinatra::ActiveRecordExtension
 
-  set :environment, ENV['RACK_ENV']
-
   use Rack::MethodOverride
 
   use Rack::Protection::AuthenticityToken

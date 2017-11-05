@@ -16,7 +16,7 @@ class UsersController < ApplicationController
       session[:id] = @user.id
       redirect "/lists"
     else
-      halt erb(:error)
+      halt 400, 'Invalid data'
     end
   end
 
