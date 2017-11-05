@@ -11,6 +11,8 @@ class ApplicationController < Sinatra::Base
 
   use Rack::MethodOverride
 
+  use Rack::Protection::AuthenticityToken
+
   set :views, File.expand_path('../../views', __FILE__)
 
   configure do

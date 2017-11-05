@@ -10,6 +10,7 @@ gem 'bcrypt'
 gem 'pony'
 
 group :test do
+  gem 'awesome_print'
   gem 'rspec'
   gem 'pry'
   gem 'pry-byebug'
