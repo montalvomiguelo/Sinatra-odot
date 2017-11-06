@@ -11,7 +11,7 @@ describe Api::ListsController do
   it "Retreives all lists" do
     user = create(:user_with_lists)
 
-    get '/api/lists'
+    get '/lists'
     expect(last_response).to be_ok
   end
 
@@ -22,16 +22,16 @@ describe Api::ListsController do
     context "with valid id" do
       it "finds the list" do
         expect_any_instance_of(Api::ListsController).to receive(:find_list).and_return(list)
-        get "/api/lists/#{list.id}"
+        get "/lists/#{list.id}"
       end
 
       it "responds 200 ok" do
-        get "/api/lists/#{list.id}"
+        get "/lists/#{list.id}"
         expect(last_response.status).to eq(200)
       end
 
       it "shows the resource" do
-        get "/api/lists/#{list.id}"
+        get "/lists/#{list.id}"
         expect(last_response.body).to include(list.title)
       end
     end
@@ -49,19 +49,19 @@ describe Api::ListsController do
 
     context "with valid params" do
       it "responds 200 ok" do
-        post '/api/lists', { title: 'A new list' }
+        post '/lists', { title: 'A new list' }
         expect(last_response.status).to eq(200)
       end
 
       it "retrieves the resource" do
-        post '/api/lists', { title: 'A new list' }
+        post '/lists', { title: 'A new list' }
         expect(last_response.body).to include('A new list')
       end
     end
 
     context "with invalid params" do
       it "it responds 422 error" do
-        post '/api/lists', { title: '' }
+        post '/lists', { title: '' }
         expect(last_response.status).to eq(422)
         expect(last_response.body).to include('title')
       end
@@ -75,11 +75,11 @@ describe Api::ListsController do
     context "with valid id" do
       it "finds the list" do
         expect_any_instance_of(Api::ListsController).to receive(:find_list).and_return(list)
-        delete "/api/lists/#{list.id}"
+        delete "/lists/#{list.id}"
       end
 
       it "responds 200 ok" do
-        delete "/api/lists/#{list.id}"
+        delete "/lists/#{list.id}"
         expect(last_response.status).to eq(200)
         expect(last_response.body).to eq('List deleted successfully')
       end
@@ -87,7 +87,7 @@ describe Api::ListsController do
 
     context "with invalid id" do
       it "responds 404 error" do
-        delete "/api/lists/1234567890"
+        delete "/lists/1234567890"
         expect(last_response.status).to eq(404)
         expect(last_response.body).to eq('Not found')
       end
@@ -101,30 +101,30 @@ describe Api::ListsController do
     context "with valid params" do
       it "finds the list" do
         expect_any_instance_of(Api::ListsController).to receive(:find_list).and_return(list)
-        put "/api/lists/#{list.id}", {title: 'Title has changed'}
+        put "/lists/#{list.id}", {title: 'Title has changed'}
       end
 
       it "it saves the new data" do
         expect_any_instance_of(List).to receive(:save)
-        put "/api/lists/#{list.id}", {title: 'Title has changed'}
+        put "/lists/#{list.id}", {title: 'Title has changed'}
       end
 
       it "returns updated list" do
-        put "/api/lists/#{list.id}", {title: 'Title has changed'}
+        put "/lists/#{list.id}", {title: 'Title has changed'}
         expect(last_response.body).to include('Title has changed')
       end
     end
 
     context "with invalid id" do
       it "responds 404 error" do
-        put "/api/lists/1234567890", {title: 'Title has changed'}
+        put "/lists/1234567890", {title: 'Title has changed'}
         expect(last_response.status).to eq(404)
       end
     end
 
     context "with invalid params" do
       it "responds 422 error" do
-        put "/api/lists/#{list.id}", {title: ''}
+        put "/lists/#{list.id}", {title: ''}
         expect(last_response.status).to eq(422)
         expect(last_response.body).to include('blank')
       end

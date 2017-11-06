@@ -13,6 +13,6 @@ map '/' do
   run ListsController
 end
 
-map '/' do
+map '/api' do
   run Api::ListsController
 end

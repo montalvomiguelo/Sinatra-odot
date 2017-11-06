@@ -1,52 +1,50 @@
 module Api
 
   class ListsController < Api::ApplicationController
-    namespace '/api' do
 
-      post '/lists' do
-        list = List.new
-        list.title = params[:title]
+    post '/lists' do
+      list = List.new
+      list.title = params[:title]
 
-        if list.save
-          json list
-        else
-          status 422
-          json list.errors
-        end
-      end
-
-      get '/lists/:id' do
-        list = find_list(params[:id])
+      if list.save
         json list
+      else
+        status 422
+        json list.errors
       end
+    end
 
-      get '/lists' do
-        json List.all
-      end
+    get '/lists/:id' do
+      list = find_list(params[:id])
+      json list
+    end
 
-      delete '/lists/:id' do
-        list = find_list(params[:id])
+    get '/lists' do
+      json List.all
+    end
 
-        list.destroy
+    delete '/lists/:id' do
+      list = find_list(params[:id])
 
-        return [200, {'Content-Type' => 'application/json'}, ['List deleted successfully']]
-      end
+      list.destroy
 
-      put '/lists/:id' do
-        list = find_list(params[:id])
+      return [200, {'Content-Type' => 'application/json'}, ['List deleted successfully']]
+    end
 
-        list.title = params[:title]
+    put '/lists/:id' do
+      list = find_list(params[:id])
 
-        if list.save
-          json list
-        else
-          status 422
-          json list.errors
-        end
+      list.title = params[:title]
 
+      if list.save
+        json list
+      else
+        status 422
+        json list.errors
       end
 
     end
+
 
     private
     def find_list(id)
