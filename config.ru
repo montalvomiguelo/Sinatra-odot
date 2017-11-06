@@ -3,11 +3,16 @@ Bundler.require
 
 ENV['RACK_ENV'] ||= 'development'
 
-Dir[File.join(File.dirname(__FILE__), 'controllers', '*.rb')].each { |controller| require controller }
+Dir[File.join(File.dirname(__FILE__), 'controllers', '**/*.rb')].each { |controller| require controller }
 
-use TasksController
-use UsersController
-use UserSessionsController
-use PasswordResetsController
+map '/' do
+  use TasksController
+  use UsersController
+  use UserSessionsController
+  use PasswordResetsController
+  run ListsController
+end
 
-run ListsController
+map '/' do
+  run Api::ListsController
+end

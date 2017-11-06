@@ -9,6 +9,8 @@ gem 'rake'
 gem 'bcrypt'
 gem 'pony'
 gem 'rack-protection'
+gem 'sinatra-contrib'
+gem 'rack-contrib'
 
 group :test do
   gem 'nyan-cat-formatter'
