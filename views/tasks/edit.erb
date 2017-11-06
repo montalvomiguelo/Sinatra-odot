@@ -29,6 +29,7 @@
 
   <input type="number" name="duration" min="0" value="<%= @task.duration %>">
 
+  <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
   <input type="submit">
 </form>
 
@@ -36,5 +37,6 @@
 
 <form action="/tasks/<%= @task.id %>" method="post">
   <input type="hidden" name="_method" value="delete" />
+  <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
   <input type="submit" value="Delete">
 </form>

@@ -4,6 +4,7 @@
   <input type="hidden" name="_method" value="put" />
 
   <input type="password" name="password" placeholder="Password">
+  <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
 
   <input type="submit">
 </form>

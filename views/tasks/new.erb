@@ -7,5 +7,6 @@
       <option value="<%= list.id %>"><%= list.title  %></option>
     <% end %>
   </select>
+  <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
   <input type="submit">
 </form>

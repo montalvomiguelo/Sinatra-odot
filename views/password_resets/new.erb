@@ -2,5 +2,6 @@
 
 <form action="/password_resets" method="post">
   <input type="email" name="email" id="email" placeholder="Email">
+  <input type="hidden" name="authenticity_token" value="<%= session[:csrf] %>">
   <input type="submit">
 </form>
