@@ -14,5 +14,6 @@ map '/' do
 end
 
 map '/api' do
+  use Api::TasksController
   run Api::ListsController
 end
