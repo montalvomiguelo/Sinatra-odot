@@ -16,7 +16,7 @@ module Api
 
     get '/lists/:id' do
       list = find_list(params[:id])
-      json list
+      json list.as_json(include: :tasks)
     end
 
     get '/lists' do

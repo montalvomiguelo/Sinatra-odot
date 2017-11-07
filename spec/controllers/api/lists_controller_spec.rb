@@ -34,6 +34,11 @@ describe Api::ListsController do
         get "/lists/#{list.id}"
         expect(last_response.body).to include(list.title)
       end
+
+      it "contains its tasks" do
+        get "/lists/#{list.id}"
+        expect(last_response.body).to include('Task title')
+      end
     end
 
     context "with invalid id" do
