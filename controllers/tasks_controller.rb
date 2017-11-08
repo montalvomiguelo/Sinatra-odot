@@ -50,14 +50,13 @@ class TasksController < ApplicationController
     protected!
 
     find_task
-    begin
-      @list = current_user.lists.find(params[:list_id]) if params[:list_id]
-    rescue
-      halt 404, 'Not found'
+
+    if params[:list_id]
+      list = find_list(params[:list_id])
+      @task.list_id = list.id
     end
 
     @task.title = params[:title]
-    @task.list_id = @list.id if @list
     @task.duration = params[:duration] if params[:duration]
 
     if params[:completed] == 'true'
