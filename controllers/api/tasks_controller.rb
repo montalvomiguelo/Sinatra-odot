@@ -1,7 +1,12 @@
 module Api
   class TasksController < Api::ApplicationController
+    before do
+      protected!
+    end
+
     get '/tasks' do
-      json Task.all
+      @tasks = Task.includes(:list).where(lists: { user_id: current_user.id })
+      json @tasks
     end
 
     get '/tasks/:id' do
@@ -13,7 +18,9 @@ module Api
       task = Task.new
 
       task.title = params[:title]
-      task.list_id = params[:list_id]
+
+      list = find_list(params[:list_id])
+      task.list_id = list.id
 
       if task.save
         json task
@@ -26,8 +33,12 @@ module Api
     put '/tasks/:id' do
       task = find_task(params[:id])
 
+      if params[:list_id]
+        list = find_list(params[:list_id])
+        task.list_id = list.id
+      end
+
       task.title = params[:title]
-      task.list_id = params[:list_id] if params[:list_id]
       task.duration = params[:duration] if params[:duration]
 
       if params[:completed] == 'true'
@@ -55,9 +66,17 @@ module Api
     private
     def find_task(id)
       begin
-        Task.find(id)
+        Task.includes(:list).where(lists: { user_id: current_user.id }).find(id)
       rescue
         halt 404, {'Content-Type' => 'application/json'}, 'Not found'
+      end
+    end
+
+    def find_list(id)
+      begin
+        current_user.lists.find(params[:list_id])
+      rescue
+        halt 404, 'Not found'
       end
     end
 

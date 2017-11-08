@@ -8,16 +8,73 @@ describe Api::ListsController do
     Api::ListsController
   end
 
-  it "Retreives all lists" do
-    user = create(:user_with_lists)
+  describe "Retreiving all lists" do
+    let(:user) { create(:user_with_lists) }
 
-    get '/lists'
-    expect(last_response).to be_ok
+    before do
+      basic_authorize user.email, user.password
+    end
+
+    context "with user authenticated" do
+      it "protects the route" do
+        allow_any_instance_of(Api::ListsController).to receive(:current_user).and_return(user)
+        expect_any_instance_of(Api::ListsController).to receive(:protected!).and_return(nil)
+        get '/lists'
+      end
+
+      it "authenticates the user" do
+        allow_any_instance_of(Api::ListsController).to receive(:current_user).and_return(user)
+        expect_any_instance_of(Api::ListsController).to receive(:authorized?).and_return(true)
+        get '/lists'
+      end
+
+      it "gets the current user" do
+        allow_any_instance_of(Api::ListsController).to receive(:authorized?).and_return(true)
+        expect_any_instance_of(Api::ListsController).to receive(:current_user).and_return(user)
+        get '/lists'
+      end
+
+      it "responds 200 ok" do
+        get '/lists'
+        expect(last_response.status).to eq(200)
+      end
+
+      it "scopes the query to only the lists of current user" do
+        expect_any_instance_of(User).to receive(:lists).and_return(user.lists)
+        get '/lists'
+      end
+
+      it "responds with the lists" do
+        list = user.lists.first
+        get '/lists'
+        expect(last_response.body).to include(list.title)
+      end
+    end
+
+    context "with no user authenticated" do
+      it "responds 401" do
+        basic_authorize 'no@valid.com', 'password'
+        get '/lists'
+        expect(last_response.status).to eq(401)
+      end
+    end
   end
 
   describe "Retreiving a single list" do
     let(:user_one) { create(:user_with_lists) }
     let(:list) { user_one.lists.first }
+
+    before do
+      basic_authorize user_one.email, user_one.password
+    end
+
+    context "with no authorized user" do
+      it "halts 401 error" do
+        allow_any_instance_of(Api::ListsController).to receive(:authorized?).and_return(false)
+        get "/lists/#{list.id}"
+        expect(last_response.status).to eq(401)
+      end
+    end
 
     context "with valid id" do
       it "finds the list" do
@@ -52,10 +109,19 @@ describe Api::ListsController do
   describe "Creating a list" do
     let(:user_one) { create(:user_with_lists) }
 
+    before do
+      basic_authorize user_one.email, user_one.password
+    end
+
     context "with valid params" do
       it "responds 200 ok" do
         post '/lists', { title: 'A new list' }
         expect(last_response.status).to eq(200)
+      end
+
+      it "belongs to current user" do
+        post '/lists', { title: 'A new list' }
+        expect(user_one.lists.last.user_id).to eq(user_one.id)
       end
 
       it "retrieves the resource" do
@@ -77,6 +143,10 @@ describe Api::ListsController do
     let(:user_one) { create(:user_with_lists) }
     let(:list) { user_one.lists.first }
 
+    before do
+      basic_authorize user_one.email, user_one.password
+    end
+
     context "with valid id" do
       it "finds the list" do
         expect_any_instance_of(Api::ListsController).to receive(:find_list).and_return(list)
@@ -97,11 +167,26 @@ describe Api::ListsController do
         expect(last_response.body).to eq('Not found')
       end
     end
+
+    context "when list does not belong to user" do
+      it "halts 404 error" do
+        user_two = create(:user_with_lists)
+        list_two = user_two.lists.last
+        delete "/lists/#{list_two.id}"
+
+        expect(last_response.status).to eq(404)
+        expect(last_response.body).to eq('Not found')
+      end
+    end
   end
 
   describe "Updating a list" do
     let(:user_one) { create(:user_with_lists) }
     let(:list) { user_one.lists.first }
+
+    before do
+      basic_authorize user_one.email, user_one.password
+    end
 
     context "with valid params" do
       it "finds the list" do
@@ -132,6 +217,17 @@ describe Api::ListsController do
         put "/lists/#{list.id}", {title: ''}
         expect(last_response.status).to eq(422)
         expect(last_response.body).to include('blank')
+      end
+    end
+
+    context "when list does not belong to current user" do
+      it "halts 404 error" do
+        user_two = create(:user_with_lists)
+        list_two = user_two.lists.last
+
+        put "/lists/#{list_two.id}", {title: 'Changed'}
+        expect(last_response.status).to eq(404)
+        expect(last_response.body).to include('Not found')
       end
     end
   end

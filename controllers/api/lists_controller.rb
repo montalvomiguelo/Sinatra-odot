@@ -1,9 +1,12 @@
 module Api
 
   class ListsController < Api::ApplicationController
+    before do
+      protected!
+    end
 
     post '/lists' do
-      list = List.new
+      list = current_user.lists.new
       list.title = params[:title]
 
       if list.save
@@ -20,7 +23,7 @@ module Api
     end
 
     get '/lists' do
-      json List.all
+      json current_user.lists.all
     end
 
     delete '/lists/:id' do
@@ -49,7 +52,7 @@ module Api
     private
     def find_list(id)
       begin
-        List.find(params[:id])
+        current_user.lists.find(params[:id])
       rescue
         halt 404, {'Content-Type' => 'application/json'}, 'Not found'
       end
